@@ -1,12 +1,27 @@
+import sqlite3
 import pytest
 from app.carrinho_db import (
+    criar_tabela,
     adicionar_item,
     listar_itens,
     calcular_total,
     limpar_carrinho
 )
 
+# =========================
+# Fixture do banco em memória
+# =========================
+@pytest.fixture
+def db():
+    conn = sqlite3.connect(":memory:")
+    criar_tabela(conn)
+    yield conn
+    conn.close()
+
+
+# =========================
 # Missão 1 — Persistência
+# =========================
 
 def test_item_persiste_no_banco(db):
     # Arrange
@@ -41,7 +56,9 @@ def test_preco_negativo_lanca_value_error(db):
         adicionar_item(db, "Produto inválido", -10.0, 1)
 
 
+# =========================
 # Missão 2 — Cálculo de total
+# =========================
 
 def test_carrinho_vazio_retorna_zero(db):
     # Act
@@ -75,7 +92,9 @@ def test_total_multiplos_itens(db):
     assert total == 43.0
 
 
+# =========================
 # Missão 3 — Limpeza
+# =========================
 
 def test_limpar_remove_todos_os_itens(db):
     # Arrange
